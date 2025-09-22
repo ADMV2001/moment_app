@@ -26,7 +26,7 @@ export default function RootLayout() {
 
   return (
     <>
-      <Stack screenOptions={{ headerShown: true, title: "Moments" }}/>
+      <Stack screenOptions={{ headerShown: false }}/>
     </>
   );
 }

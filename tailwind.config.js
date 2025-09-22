@@ -5,12 +5,16 @@ module.exports = {
   theme: {
     extend: {
       colors:{
-        primary: '#1DA1F2',
+        primary: '#CFFFE2',
+        secondary: '#A2D5C6',
+        third: '#F6F6F6',
+        background: '#000000',
       },
       fontFamily:{
         sans: ['LatoRegular', 'sans-serif'],
         bold: ['LatoBold', 'sans-serif'],
-      }
+      },
+      arbitrary: ['width', 'height'],
     },
   },
   plugins: [],
