@@ -39,7 +39,11 @@ export const login = async (email: string, password: string) => {
 export const createUser = async (email: string, password: string, username: string) => {
   try {
     const newAccount = await account.create(ID.unique(), email, password, username);
-    const avatarUrl = avatars.getInitials(username);
+    const avatarUrl = avatars.getInitials(username).toString();
+
+    if (avatarUrl.length > 1000) {
+      throw new Error('Avatar URL exceeds 1000 characters');
+    }
 
     // Create a session for the new user
     await login(email, password);
