@@ -56,7 +56,7 @@ const Login = () => {
           </View>
 
           <View>
-            <Text className="text-gray-300 text-center text-[16px]">Don&apos;t have an account?  <Link href="/signup" className="text-yellow-400 font-bold">Sign Up</Link></Text>
+            <Text className="text-gray-300 text-center text-[16px]">Don&apos;t have an account?  <Link href="/signup" className="text-yellow-400 font-semibold">Sign Up</Link></Text>
           </View>
 
         </View>

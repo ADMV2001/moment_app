@@ -6,6 +6,8 @@ import CustomButton from "@/components/CustomButton";
 import cover from '../assets/images/cover.png';
 import logo from '../assets/images/logo.png';
 
+import 'react-native-url-polyfill/auto';
+
 export default function Index() {
 
   const router = useRouter();
