@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { Image, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -6,11 +6,20 @@ import CustomButton from "@/components/CustomButton";
 import cover from '../assets/images/cover.png';
 import logo from '../assets/images/logo.png';
 
+import { useGlobalContext } from "@/context/GlobalProvider";
 import 'react-native-url-polyfill/auto';
 
 export default function Index() {
 
   const router = useRouter();
+
+  const {isLoading, isLoggedIn} = useGlobalContext()!;
+
+  const forceAuthPages = false; // This is only for the production phase since it is essential to go to the login and signup pages white developing
+
+  if(!isLoading && isLoggedIn && !forceAuthPages){
+    return <Redirect href='/home'/>
+  }
 
   return (
     <SafeAreaView className="bg-black flex-1">

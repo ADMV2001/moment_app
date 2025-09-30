@@ -1,26 +1,27 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import React from 'react';
+import { StatusBar } from 'react-native';
 
 const TabsLayout = () => {
   return (
     <>
+    <StatusBar barStyle="light-content" backgroundColor="black" />
       <Tabs
       screenOptions={{
         tabBarActiveTintColor: 'white',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: { 
           backgroundColor: 'black',
-          borderTopWidth: 1,
-          borderTopColor: '#6200EE',
-          height: 100,
+          borderTopWidth: 0.5,
+          borderTopColor: '',
+          height: 75,
           paddingTop: 10, 
         },
-        headerStyle: { backgroundColor: '#6200EE' },
-        headerTitleStyle: { color: '#fff', fontWeight: 'bold' },
+        headerStyle: { backgroundColor: 'black' },
+        headerTitleStyle: { color: '#fff', fontWeight: 'semibold' },
       }}
       >
-
         <Tabs.Screen 
           name="home" 
           options={{ headerShown: false, title: 'Home',

@@ -1,4 +1,4 @@
-import { Account, AppwriteException, Avatars, Client, Databases, ID, Permission, Role } from 'react-native-appwrite';
+import { Account, Avatars, Client, Databases, ID, Permission, Query, Role } from 'react-native-appwrite';
 
 export const appwriteConfig = {
     endpoint: 'https://cloud.appwrite.io/v1', // Appwrite Endpoint
@@ -10,6 +10,7 @@ export const appwriteConfig = {
     storageId: '68d39c820016121dd722'
 }
 
+//connect the app to appwrite server
 const client = new Client();
 
 client
@@ -21,59 +22,99 @@ const account = new Account(client);
 const avatars = new Avatars(client);
 const databases = new Databases(client);
 
+
 export const login = async (email: string, password: string) => {
     try {
-        // Use the new, non-deprecated method
         const session = await account.createEmailPasswordSession({email, password});
         return session;
 
     } 
     catch (error: unknown) {
-        throw new AppwriteException(
-            error instanceof Error ? error.message : 'Unknown error occurred',
-            error instanceof Error && 'code' in error ? (error as any).code : undefined
-    );
+      throw error;
     }
 }
 
 export const createUser = async (email: string, password: string, username: string) => {
   try {
-    const newAccount = await account.create(ID.unique(), email, password, username);
-    const avatarUrl = avatars.getInitials(username).toString();
+
+    const currentSession = await account.get();
+    if(currentSession){
+      await account.deleteSession({ sessionId:'current'});
+    }
+
+    const newAccount = await account.create({userId:ID.unique(), email, password, name: username});
+    const avatarUrl = avatars.getInitials({name: username}).toString();
 
     if (avatarUrl.length > 1000) {
       throw new Error('Avatar URL exceeds 1000 characters');
     }
 
-    // Create a session for the new user
     await login(email, password);
+    const currentUser = await account.get();
+    if(!currentUser) throw new Error("Could not retrieve current user after login!");
 
-    // Restrict document permissions to the user who created it
-    const newUser = await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.userTableId,
-      ID.unique(),
-      {
-        accountId: newAccount.$id,
+    const accountIdToUse = currentUser.$id;
+
+    const newUser = await databases.createDocument({
+      databaseId: appwriteConfig.databaseId,
+      collectionId: appwriteConfig.userTableId,
+      documentId: ID.unique(),
+      data: {
+        accountId: currentUser.$id,
         email,
         username,
         avatar: avatarUrl,
       },
-      [
-        Permission.read(Role.user(newAccount.$id)), // Only the user can read
-        Permission.write(Role.user(newAccount.$id)), // Only the user can update
-        Permission.delete(Role.user(newAccount.$id)), // Only the user can delete
-      ]
-    );
+      permissions: [
+        Permission.read(Role.user(accountIdToUse)),
+        Permission.write(Role.user(accountIdToUse)),
+        Permission.delete(Role.user(accountIdToUse)),
+      ],
+    });
 
     return newUser;
-  } catch (error: unknown) {
-    throw new AppwriteException(
-      error instanceof Error ? error.message : 'Unknown error occurred',
-      error instanceof Error && 'code' in error ? (error as any).code : undefined
-    );
+
+  }
+  catch (error: unknown) {
+      throw error;
   }
 };
 
+export const getCurrentUser = async () =>{
+  try{
+    const currentAccount = await account.get();
 
+    if(!currentAccount) throw Error;
 
+    const currentUser = await databases.listDocuments({
+      databaseId: appwriteConfig.databaseId,
+      collectionId: appwriteConfig.userTableId,
+      queries: [Query.equal('accountId', currentAccount.$id)]
+    })
+
+    if (currentUser.documents.length === 0) {
+      return null; 
+    }
+
+    return currentUser.documents[0];
+  }
+  catch(e){
+    console.log(e);
+    return null;
+  }
+} 
+
+export const getAllPosts = async () => {
+  try{
+    const posts = await databases.listDocuments({
+      databaseId: appwriteConfig.databaseId,
+      collectionId: appwriteConfig.videoTableId,
+    })
+
+    return posts.documents;
+  }
+  catch(e){
+    console.log(e);
+    return null;
+  }
+}
